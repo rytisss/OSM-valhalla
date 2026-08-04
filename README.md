@@ -60,6 +60,44 @@ pip install -r examples/requirements.txt
 python examples/route_truck.py
 ```
 
+### Avoiding places
+
+Two request fields keep a route away from somewhere:
+
+- `exclude_locations` — `[{"lat": …, "lon": …}]`. Valhalla forbids the edges
+  nearest each point. Surgical: use it to close a specific street or ramp.
+- `exclude_polygons` — `[[[lon, lat], …]]`, a closed ring in **`[lon, lat]`
+  order** (GeoJSON), the opposite of `locations`. The route may not cross it.
+  Use this for "the route must not pass through here".
+
+```bash
+curl http://localhost:8002/route -d '{
+  "locations":[{"lat":41.8781,"lon":-87.6298},{"lat":39.7684,"lon":-86.1581}],
+  "costing":"truck",
+  "units":"miles",
+  "exclude_polygons":[[[-86.8298,40.4063],[-86.8098,40.4063],
+                       [-86.8098,40.4263],[-86.8298,40.4263],[-86.8298,40.4063]]]
+}'
+```
+
+```bash
+python examples/route_avoid.py   # both mechanisms, with before/after distances
+```
+
+Requires Python 3.10+ (the sample uses `X | None` annotations).
+
+Two things to know:
+
+- **Polygons are size-capped.** `service_limits.max_exclude_polygons_length`
+  defaults to 10 000 m of total perimeter; a bigger ring fails the request with
+  `error_code` 167. The ~2 × 1.7 km box above is ~7 840 m of perimeter — 78% of
+  the budget — and that budget is shared across every polygon in the request,
+  so a second zone can easily push you over.
+- **`exclude_locations` only removes the nearest edges.** On a motorway, where
+  the edge between interchanges is long, the route can rejoin the same highway
+  within metres — blocking a point on I-65 shifted a Chicago → Indianapolis
+  route by 13 m. Reach for `exclude_polygons` when a zone must really be avoided.
+
 Other endpoints: `/route`, `/sources_to_targets` (matrix), `/isochrone`,
 `/optimized_route`. Pass `"costing":"truck"` plus optional
 `costing_options.truck` (height, weight, axle_load, length, width, hazmat).
