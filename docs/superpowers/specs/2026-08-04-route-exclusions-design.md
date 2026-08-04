@@ -54,7 +54,7 @@ HTTP 400 {"error_code": 167,
           "error": "Exceeded maximum circumference for exclude_polygons: 10000 meters"}
 ```
 
-A 0.05° box is ~19 km of perimeter and is rejected. The sample uses a **0.01°
+A 0.05° half-width box is ~39 km of perimeter and is rejected. The sample uses a **0.01°
 half-width** box (≈2.2 × 1.7 km, ~7.8 km perimeter), safely under the cap, and
 the docstring explains why the box is small.
 

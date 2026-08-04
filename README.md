@@ -84,11 +84,15 @@ curl http://localhost:8002/route -d '{
 python examples/route_avoid.py   # both mechanisms, with before/after distances
 ```
 
+Requires Python 3.10+ (the sample uses `X | None` annotations).
+
 Two things to know:
 
 - **Polygons are size-capped.** `service_limits.max_exclude_polygons_length`
   defaults to 10 000 m of total perimeter; a bigger ring fails the request with
-  `error_code` 167. The ~2 × 1.7 km box above is well inside the limit.
+  `error_code` 167. The ~2 × 1.7 km box above is ~7 840 m of perimeter — 78% of
+  the budget — and that budget is shared across every polygon in the request,
+  so a second zone can easily push you over.
 - **`exclude_locations` only removes the nearest edges.** On a motorway, where
   the edge between interchanges is long, the route can rejoin the same highway
   within metres — blocking a point on I-65 shifted a Chicago → Indianapolis

@@ -258,7 +258,7 @@ Expected: Scenario 2 prints a `(+0.0 mi)` delta and the stderr line `the exclusi
 
 - [ ] **Step 6: Prove the error path prints Valhalla's message, not a traceback**
 
-Temporarily set `BLOCKED_AREA_HALF_WIDTH = 0.05` (a ~19 km perimeter, over the cap) and run:
+Temporarily set `BLOCKED_AREA_HALF_WIDTH = 0.05` (a ~39 km perimeter, over the cap) and run:
 ```bash
 python examples/route_avoid.py; echo "exit=$?"
 ```
