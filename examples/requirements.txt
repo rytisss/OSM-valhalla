@@ -1,1 +1,2 @@
 requests>=2.31
+pyshp>=2.3  # only for build_us_states.py

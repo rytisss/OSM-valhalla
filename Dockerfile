@@ -48,6 +48,18 @@ RUN set -eux; \
     # Keep the tar (served via tile_extract); drop the loose tiles and the PBF.
     rm -rf /custom_files/valhalla_tiles /custom_files/data.osm.pbf
 
+# Total perimeter (metres) a request may pass in exclude_polygons. Valhalla's
+# default of 10 000 m only fits a few city blocks; the fuel-saving backend
+# excludes whole states (Alabama's simplified outline alone is ~1 750 km), so
+# the baked config carries a far larger budget. It is a service_limits entry
+# read at startup, not a graph property, so changing it never rebuilds tiles.
+ARG MAX_EXCLUDE_POLYGONS_LENGTH=50000000
+RUN set -eux; \
+    jq --argjson n "${MAX_EXCLUDE_POLYGONS_LENGTH}" \
+      '.service_limits.max_exclude_polygons_length = $n' \
+      /custom_files/valhalla.json > /custom_files/valhalla.json.new; \
+    mv /custom_files/valhalla.json.new /custom_files/valhalla.json
+
 # --------------------------------------------------------------------------- #
 # Final: engine + baked graph, serve-only.
 # --------------------------------------------------------------------------- #
