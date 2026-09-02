@@ -29,6 +29,7 @@ limit ship together.
 | Sample shape | New `examples/route_exclude_states.py` importing `route_truck` from `route_avoid.py` | Reuses the request builder; keeps each sample focused. |
 | Proof of effect | Decode the returned shape; count points inside excluded rings; closest approach to each blocked point before/after | A distance delta alone cannot show the route stayed out of a state. |
 | Map refresh | Full rebuild via the existing Dockerfile with `--no-cache` and `CONCURRENCY=1` | The download layer would otherwise be served from the July cache. Single-threaded is the recipe that fits this machine. |
+| Architectures | One `buildx` run for `linux/arm64,linux/amd64`; builder stage pinned to `$BUILDPLATFORM` | Tiles are architecture-independent data. Building them once natively and copying into a final image per platform avoids emulation entirely, since the final stage has no `RUN`. The workflow publishes both. |
 
 ## How Valhalla applies a polygon
 

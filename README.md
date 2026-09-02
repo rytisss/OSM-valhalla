@@ -169,7 +169,9 @@ docker run --rm -p 8002:8002 osm-valhalla:dc     # routes immediately, no mount
 > it will **not** build on a GitHub-hosted runner. For USA, run the workflow on
 > a **self-hosted/large runner**, or build & push locally. Use the
 > `workflow_dispatch` `pbf_url` input to bake a smaller region on hosted CI.
-> Images are `linux/amd64`; arm64 hosts run them via emulation.
+> Images are published for `linux/amd64` and `linux/arm64` from one tile
+> build: the builder stage is pinned to the build machine's platform and the
+> tiles are copied into a final image per target, so no emulation is involved.
 
 After the **first** publish, make the package public (repo → Packages →
 package settings → visibility), or `docker compose pull` will need a GHCR

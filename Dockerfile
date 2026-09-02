@@ -14,8 +14,14 @@ ARG VALHALLA_VERSION=3.5.1
 
 # --------------------------------------------------------------------------- #
 # Builder: download the extract and build the graph + tar.
+#
+# Pinned to the *build* machine's platform on purpose: the tiles are plain
+# data, identical on every architecture, so they are built once natively and
+# copied into a final image per target platform. The final stage has no RUN,
+# so a multi-platform build needs no emulation:
+#   docker buildx build --platform linux/arm64,linux/amd64 -t osm-valhalla:usa --load .
 # --------------------------------------------------------------------------- #
-FROM ghcr.io/gis-ops/docker-valhalla/valhalla:${VALHALLA_VERSION} AS builder
+FROM --platform=$BUILDPLATFORM ghcr.io/gis-ops/docker-valhalla/valhalla:${VALHALLA_VERSION} AS builder
 
 ARG PBF_URL=https://download.geofabrik.de/north-america/us-latest.osm.pbf
 # Tile-builder thread count. Empty = all cores (fast, high peak RAM). Set to 1
@@ -61,7 +67,7 @@ RUN set -eux; \
     mv /custom_files/valhalla.json.new /custom_files/valhalla.json
 
 # --------------------------------------------------------------------------- #
-# Final: engine + baked graph, serve-only.
+# Final: engine + baked graph, serve-only. One per --platform requested.
 # --------------------------------------------------------------------------- #
 FROM ghcr.io/gis-ops/docker-valhalla/valhalla:${VALHALLA_VERSION}
 
