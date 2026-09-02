@@ -89,10 +89,14 @@ Requires Python 3.10+ (the sample uses `X | None` annotations).
 Two things to know:
 
 - **Polygons are size-capped.** `service_limits.max_exclude_polygons_length`
-  defaults to 10 000 m of total perimeter; a bigger ring fails the request with
-  `error_code` 167. The ~2 × 1.7 km box above is ~7 840 m of perimeter — 78% of
-  the budget — and that budget is shared across every polygon in the request,
-  so a second zone can easily push you over.
+  is the total perimeter Valhalla accepts across every polygon in one request;
+  a bigger total fails the request with `error_code` 167. Valhalla's own
+  default is 10 000 m; this image bakes 100 000 m (build-arg
+  `MAX_EXCLUDE_POLYGONS_LENGTH`, kept in sync with fuel-saving-backend's
+  geofence budget). Images built before 2026-09-02 still carry 10 000 m —
+  the superproject's compose patches those at start-up. The ~2 × 1.7 km box
+  above is ~7 840 m of perimeter, so on an old image a second such zone
+  already pushes you over.
 - **`exclude_locations` only removes the nearest edges.** On a motorway, where
   the edge between interchanges is long, the route can rejoin the same highway
   within metres — blocking a point on I-65 shifted a Chicago → Indianapolis
