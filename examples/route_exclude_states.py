@@ -15,7 +15,7 @@ Valhalla's stock default of 10 000 m rejects any state (error 167).
 Run the service first, then for example:
     python examples/route_exclude_states.py
     python examples/route_exclude_states.py --state Alabama --state MS
-        --point 35.1519,-90.0636 --from 33.749,-84.388 --to 29.9511,-90.0715
+        --point 35.1531,-90.0741 --from 33.749,-84.388 --to 29.9511,-90.0715
     (one command line; wrapped here for width)
 
 Origin and destination must lie outside every excluded state, or there is no
@@ -44,7 +44,7 @@ SHAPE_PRECISION = 1e6
 DEFAULT_START = (33.7490, -84.3880)
 DEFAULT_END = (29.9511, -90.0715)
 DEFAULT_STATES = ["Alabama", "Mississippi"]
-DEFAULT_POINTS = [(35.1519, -90.0636)]
+DEFAULT_POINTS = [(35.1531, -90.0741)]
 
 Ring = list[list[float]]
 LatLon = tuple[float, float]

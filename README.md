@@ -109,8 +109,8 @@ cartographic boundaries; points go into `exclude_locations` as before.
 
 ```bash
 python examples/route_exclude_states.py                      # Atlanta -> New Orleans, no AL/MS
-python examples/route_exclude_states.py --state Texas --state OK \
-    --point 35.1519,-90.0636 --from 33.749,-84.388 --to 39.7392,-104.9903
+python examples/route_exclude_states.py --state Oklahoma --state "New Mexico" \
+    --point 36.39992,-94.18502 --from 32.7767,-96.7970 --to 39.7392,-104.9903
 ```
 
 The script prints baseline, states-only and states-plus-points results, then
@@ -128,6 +128,18 @@ Simplified outlines from the Census file:
 | Texas (largest of the lower 48) | 4 624 km |
 | Alabama + Mississippi | 3 532 km |
 | All lower-48 states together | 94 925 km |
+
+Measured on the USA image built 2026-09-01 (Apple M-series, arm64):
+
+| Route | Excluded | Perimeter | Baseline | Detour | Latency |
+|---|---|---|---|---|---|
+| Atlanta → New Orleans | Alabama, Mississippi | 3 532 km | 476.5 mi | 1 061.6 mi | 10.6 s |
+| Dallas → Denver | Oklahoma, New Mexico | 4 748 km | 818.3 mi | 1 182.3 mi | 4.5 s |
+| Atlanta → Denver | Texas, Oklahoma | 6 993 km | 1 426.8 mi | unchanged | 29.7 s |
+
+Latency depends on how many roads cross the outline, not only on its length,
+and is paid even when the route never went near the excluded states (last
+row). Budget a few seconds per state and keep the list short.
 
 The image's `MAX_EXCLUDE_POLYGONS_LENGTH` build-arg (default 50 000 000 m)
 sets the budget; it is a `service_limits` entry read at startup, so changing
