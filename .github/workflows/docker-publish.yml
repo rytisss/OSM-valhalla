@@ -59,10 +59,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          # amd64 only: the graph is built during the image build, and a tile
-          # build under arm64 emulation is impractically slow. arm64 hosts run
-          # this image via emulation (fine for serving tiles).
-          platforms: linux/amd64
+          # The builder stage is pinned to the runner's own platform and the
+          # final stage has no RUN, so both targets come from one native tile
+          # build with no emulation.
+          platforms: linux/amd64,linux/arm64
           build-args: |
             PBF_URL=${{ github.event.inputs.pbf_url || 'https://download.geofabrik.de/north-america/us-latest.osm.pbf' }}
           push: true

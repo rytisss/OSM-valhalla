@@ -14,8 +14,14 @@ ARG VALHALLA_VERSION=3.5.1
 
 # --------------------------------------------------------------------------- #
 # Builder: download the extract and build the graph + tar.
+#
+# Pinned to the *build* machine's platform on purpose: the tiles are plain
+# data, identical on every architecture, so they are built once natively and
+# copied into a final image per target platform. The final stage has no RUN,
+# so a multi-platform build needs no emulation:
+#   docker buildx build --platform linux/arm64,linux/amd64 -t osm-valhalla:usa --load .
 # --------------------------------------------------------------------------- #
-FROM ghcr.io/gis-ops/docker-valhalla/valhalla:${VALHALLA_VERSION} AS builder
+FROM --platform=$BUILDPLATFORM ghcr.io/gis-ops/docker-valhalla/valhalla:${VALHALLA_VERSION} AS builder
 
 ARG PBF_URL=https://download.geofabrik.de/north-america/us-latest.osm.pbf
 # Tile-builder thread count. Empty = all cores (fast, high peak RAM). Set to 1
@@ -54,8 +60,20 @@ RUN set -eux; \
     # Keep the tar (served via tile_extract); drop the loose tiles and the PBF.
     rm -rf /custom_files/valhalla_tiles /custom_files/data.osm.pbf
 
+# Total perimeter (metres) a request may pass in exclude_polygons. Valhalla's
+# default of 10 000 m only fits a few city blocks; the fuel-saving backend
+# excludes whole states (Alabama's simplified outline alone is ~1 750 km), so
+# the baked config carries a far larger budget. It is a service_limits entry
+# read at startup, not a graph property, so changing it never rebuilds tiles.
+ARG MAX_EXCLUDE_POLYGONS_LENGTH=50000000
+RUN set -eux; \
+    jq --argjson n "${MAX_EXCLUDE_POLYGONS_LENGTH}" \
+      '.service_limits.max_exclude_polygons_length = $n' \
+      /custom_files/valhalla.json > /custom_files/valhalla.json.new; \
+    mv /custom_files/valhalla.json.new /custom_files/valhalla.json
+
 # --------------------------------------------------------------------------- #
-# Final: engine + baked graph, serve-only.
+# Final: engine + baked graph, serve-only. One per --platform requested.
 # --------------------------------------------------------------------------- #
 FROM ghcr.io/gis-ops/docker-valhalla/valhalla:${VALHALLA_VERSION}
 
