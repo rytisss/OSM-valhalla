@@ -94,6 +94,7 @@ Two things to know:
   10 000 m, enough for the ~2 × 1.7 km box above (~7 840 m) but not for a
   second zone. Images built from this repo raise it to 50 000 km (see
   [Excluding whole states](#excluding-whole-states)).
+
 - **`exclude_locations` only removes the nearest edges.** On a motorway, where
   the edge between interchanges is long, the route can rejoin the same highway
   within metres — blocking a point on I-65 shifted a Chicago → Indianapolis

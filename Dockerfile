@@ -28,6 +28,11 @@ ARG PBF_URL=https://download.geofabrik.de/north-america/us-latest.osm.pbf
 # to build single-threaded, which keeps peak memory low enough for a big extract
 # (e.g. USA) on a memory-constrained machine — much slower, but it fits.
 ARG CONCURRENCY=
+# Total perimeter (metres) Valhalla accepts across all exclude_polygons in one
+# request (service_limits.max_exclude_polygons_length; the binary default is
+# 10,000). fuel-saving-backend budgets its exclusion zones against this value
+# (app/api/geofences.py) -- keep the two in sync. TMS-1557.
+ARG MAX_EXCLUDE_POLYGONS_LENGTH=100000
 
 USER root
 WORKDIR /custom_files
@@ -46,6 +51,7 @@ RUN set -eux; \
       --mjolnir-timezone /custom_files/timezone_data/timezones.sqlite \
       --mjolnir-admin /custom_files/admin_data/admins.sqlite \
       ${CONCURRENCY:+--mjolnir-concurrency ${CONCURRENCY}} \
+      --service-limits-max-exclude-polygons-length ${MAX_EXCLUDE_POLYGONS_LENGTH} \
       > /custom_files/valhalla.json; \
     valhalla_build_timezones > /custom_files/timezone_data/timezones.sqlite; \
     valhalla_build_admins -c /custom_files/valhalla.json /custom_files/data.osm.pbf; \
