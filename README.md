@@ -168,8 +168,12 @@ build USA on a hosted runner and fail — publish USA by building locally and
 `docker push`).
 
 The extract is chosen by the `PBF_URL` build-arg (default: continental USA),
-and the `exclude_polygons` budget by `MAX_EXCLUDE_POLYGONS_LENGTH` (default
-50 000 000 m; applied to the baked `valhalla.json` after the tile build):
+the `exclude_polygons` budget by `MAX_EXCLUDE_POLYGONS_LENGTH` (default
+50 000 000 m), and the caps on a location's `radius` / `minimum_reachability`
+by `MAX_RADIUS` / `MAX_REACHABILITY` (defaults 10 000 m / 5 000 nodes, up
+from Valhalla's 200 m / 100 — lets a caller snap an unreachable endpoint to
+the nearest road a truck can leave). All three are applied to the baked
+`valhalla.json` after the tile build:
 
 ```bash
 # Bake a small region (fast, fits any machine):

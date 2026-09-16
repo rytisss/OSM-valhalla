@@ -66,9 +66,22 @@ RUN set -eux; \
 # the baked config carries a far larger budget. It is a service_limits entry
 # read at startup, not a graph property, so changing it never rebuilds tiles.
 ARG MAX_EXCLUDE_POLYGONS_LENGTH=50000000
+# Caps on the per-location `radius` (metres) and `minimum_reachability`
+# (nodes) a request may ask for. Valhalla's defaults of 200 m / 100 nodes
+# make those options useless for the backend's "snap this order endpoint to
+# the nearest road a loaded truck can actually leave" retry (TMS-1717): a zip
+# centroid on a weight-limited cul-de-sac needs a search of a few km. Both
+# are service_limits entries read at startup; requests still default to
+# radius 0 / reachability 50 unless they ask for more.
+ARG MAX_RADIUS=10000
+ARG MAX_REACHABILITY=5000
 RUN set -eux; \
     jq --argjson n "${MAX_EXCLUDE_POLYGONS_LENGTH}" \
-      '.service_limits.max_exclude_polygons_length = $n' \
+       --argjson r "${MAX_RADIUS}" \
+       --argjson k "${MAX_REACHABILITY}" \
+      '.service_limits.max_exclude_polygons_length = $n
+       | .service_limits.max_radius = $r
+       | .service_limits.max_reachability = $k' \
       /custom_files/valhalla.json > /custom_files/valhalla.json.new; \
     mv /custom_files/valhalla.json.new /custom_files/valhalla.json
 
